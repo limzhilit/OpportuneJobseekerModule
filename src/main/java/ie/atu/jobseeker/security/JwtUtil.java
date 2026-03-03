@@ -8,6 +8,8 @@ import io.jsonwebtoken.io.Decoders;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class JwtUtil {
 
@@ -38,6 +40,26 @@ public class JwtUtil {
   public String extractUserId(String token) {
     try {
       return validateToken(token).getSubject();
+    } catch (JwtException | IllegalArgumentException e) {
+      return null;
+    }
+  }
+
+  public boolean isTokenValid(String token) {
+    try {
+      Jwts.parser()
+          .verifyWith(getSigningKey())
+          .build()
+          .parseSignedClaims(token);
+      return true;
+    } catch (JwtException | IllegalArgumentException e) {
+      return false;
+    }
+  }
+
+  public List<String> extractRoles(String token) {
+    try {
+      return validateToken(token).get("roles", List.class);
     } catch (JwtException | IllegalArgumentException e) {
       return null;
     }

@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
 @RestController
 @RequestMapping("/jobseeker")
 @RequiredArgsConstructor
@@ -14,8 +13,8 @@ public class JobseekerController {
 
   private final JobseekerService jobseekerService;
 
-  @PutMapping("/api/jobseeker/createProfile")
-  public ResponseEntity<?> createProfile(@RequestHeader("Authorization") String token, @RequestBody Jobseeker jobseeker) {
+  @PutMapping("/upsertJobseeker")
+  public ResponseEntity<?> upsertJobseeker(@RequestHeader("Authorization") String token, @RequestBody Jobseeker jobseeker) {
     return ResponseEntity.ok(jobseekerService.upsertJobseeker(token, jobseeker));
   }
 }
