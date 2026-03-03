@@ -1,13 +1,13 @@
-package ie.atu.jobboard;
+package ie.atu.jobseeker;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class JobBoardApplication {
+public class Jobseeker {
 
   public static void main(String[] args) {
-    SpringApplication.run(JobBoardApplication.class, args);
+    SpringApplication.run(Jobseeker.class, args);
   }
 
 }

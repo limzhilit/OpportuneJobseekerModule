@@ -1,4 +1,4 @@
-package ie.atu.jobboard;
+package ie.atu.jobseeker;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

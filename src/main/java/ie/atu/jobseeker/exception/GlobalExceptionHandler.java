@@ -1,4 +1,4 @@
-package ie.atu.oopsem2week4.exception;
+package ie.atu.jobseeker.exception;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -11,10 +11,6 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
-  /**
-   * Handles validation exceptions; returns field‑specific error messages
-   */
   @ExceptionHandler(value = {MethodArgumentNotValidException.class})
   public ResponseEntity<Map<String, String>>
   handleValidationException(MethodArgumentNotValidException ex) {
