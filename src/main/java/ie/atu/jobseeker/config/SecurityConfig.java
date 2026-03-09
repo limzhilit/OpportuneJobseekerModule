@@ -1,5 +1,6 @@
 package ie.atu.jobseeker.config;
 
+import ie.atu.jobseeker.security.JwtAuthEntryPoint;
 import ie.atu.jobseeker.security.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -13,7 +14,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -31,16 +31,17 @@ public class SecurityConfig {
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> auth
             .requestMatchers(
-                new AntPathRequestMatcher("/swagger-ui/**"),
-                new AntPathRequestMatcher("/v3/api-docs/**"),
-                new AntPathRequestMatcher("/h2-console"),
-                new AntPathRequestMatcher("/h2-console/**")
+                "/swagger-ui/**",
+                "/v3/api-docs/**",
+                "/h2-console",
+                "/h2-console/**"
             ).permitAll()
-            .anyRequest().authenticated()
+            .anyRequest().permitAll()
         )
-        .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-
-
+        .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+        .exceptionHandling(ex -> ex
+            .authenticationEntryPoint(new JwtAuthEntryPoint())
+        );
     return http.build();
   }
 

@@ -1,5 +1,7 @@
 package ie.atu.jobseeker.security;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -55,35 +57,24 @@ public class JwtFilter extends OncePerRequestFilter {
 
     try {
 
-      if (!jwtUtil.isTokenValid(token)) {
-        filterChain.doFilter(request, response);
-        return;
+      Claims claims = jwtUtil.validateToken(token);
+      setAuthentication(claims, request);
+
+    } catch (ExpiredJwtException ex) {
+      // ✅ Attempt refresh HERE in the filter
+      String refreshToken = request.getHeader("Refresh-Token");
+      if (refreshToken != null) {
+        try {
+          String newAccessToken = authServiceClient.refresh(refreshToken);
+          response.setHeader("Authorization", "Bearer " + newAccessToken);
+          Claims claims = jwtUtil.validateToken(newAccessToken);
+          setAuthentication(claims, request);
+        } catch (Exception refreshEx) {
+          SecurityContextHolder.clearContext(); // refresh failed → entrypoint handles it
+        }
+      } else {
+        SecurityContextHolder.clearContext(); // no refresh token → entrypoint handles it
       }
-
-      String userId = jwtUtil.extractUserId(token);
-      System.out.println("Extracted userId: " + userId);
-
-      List<String> roles = jwtUtil.extractRoles(token);
-
-      List<SimpleGrantedAuthority> authorities =
-          roles.stream()
-              .map(SimpleGrantedAuthority::new)
-              .toList();
-
-      UsernamePasswordAuthenticationToken authentication =
-          new UsernamePasswordAuthenticationToken(
-              userId,
-              null,
-              authorities
-          );
-
-      authentication.setDetails(
-          new WebAuthenticationDetailsSource()
-              .buildDetails(request)
-      );
-
-      SecurityContextHolder.getContext()
-          .setAuthentication(authentication);
 
     } catch (Exception ex) {
       logger.warn("JWT validation failed", ex);
@@ -92,5 +83,22 @@ public class JwtFilter extends OncePerRequestFilter {
     filterChain.doFilter(request, response);
   }
 
+  private void setAuthentication(Claims claims, HttpServletRequest request) {
+    String userId = claims.getSubject();
 
+    // ✅ "role" is a String, not a List
+    String role = claims.get("role", String.class);
+    List<SimpleGrantedAuthority> authorities = role != null
+        ? List.of(new SimpleGrantedAuthority("ROLE_" + role))
+        : List.of();
+
+    UsernamePasswordAuthenticationToken authentication =
+        new UsernamePasswordAuthenticationToken(userId, null, authorities);
+
+    authentication.setDetails(
+        new WebAuthenticationDetailsSource().buildDetails(request)
+    );
+
+    SecurityContextHolder.getContext().setAuthentication(authentication);
+  }
 }

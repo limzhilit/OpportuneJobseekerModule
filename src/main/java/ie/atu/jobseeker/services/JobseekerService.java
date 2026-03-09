@@ -13,10 +13,22 @@ public class JobseekerService {
   private final JobseekerRepository jobseekerRepo;
   private final JwtUtil jwtUtil;
 
-  public Jobseeker upsertJobseeker(String token, Jobseeker jobseeker) {
+  public Jobseeker upsertJobseeker(String token, Jobseeker incoming) {
     String jwt = token.replace("Bearer ", "");
-    String userId = jwtUtil.extractUserId(jwt);
-    jobseeker.setUserId(Long.parseLong(userId));
-    return jobseekerRepo.save(jobseeker);
+    Long userId = Long.parseLong(jwtUtil.extractUserId(jwt));
+    incoming.setUserId(userId);
+
+    return jobseekerRepo.findByUserId(userId)
+        .map(existing -> {
+          existing.setName(incoming.getName());
+          existing.setGender(incoming.getGender());
+          existing.setEthnicity(incoming.getEthnicity());
+          existing.setLocation(incoming.getLocation());
+          existing.setDateOfBirth(incoming.getDateOfBirth());
+          existing.getPhone().setCountryCode(incoming.getPhone().getCountryCode());
+          existing.getPhone().setNumber(incoming.getPhone().getNumber());
+          return jobseekerRepo.save(existing); // UPDATE
+        })
+        .orElseGet(() -> jobseekerRepo.save(incoming)); // INSERT
   }
 }

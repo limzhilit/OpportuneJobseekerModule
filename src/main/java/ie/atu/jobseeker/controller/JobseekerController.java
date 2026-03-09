@@ -15,6 +15,7 @@ public class JobseekerController {
 
   @PutMapping("/upsertJobseeker")
   public ResponseEntity<?> upsertJobseeker(@RequestHeader("Authorization") String token, @RequestBody Jobseeker jobseeker) {
+    System.out.println("Received jobseeker data: " + jobseeker);
     return ResponseEntity.ok(jobseekerService.upsertJobseeker(token, jobseeker));
   }
 }
