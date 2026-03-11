@@ -17,6 +17,11 @@ public class Position {
   private Long id;
 
   private String title;
+
+  private Integer yearStart;
+
+  private Integer yearEnd;
+
   private String description;
   @OneToMany(cascade = CascadeType.ALL)
   private List<Project> projects;

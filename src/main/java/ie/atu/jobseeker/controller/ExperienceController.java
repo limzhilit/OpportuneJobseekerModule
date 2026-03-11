@@ -5,13 +5,14 @@ import ie.atu.jobseeker.services.ExperienceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/jobseeker/experience")
+@RequestMapping("/jobseeker/experience")
 @RequiredArgsConstructor
 public class ExperienceController {
 
-  ExperienceService experienceService;
+  private final ExperienceService experienceService;
 
   @GetMapping
   public ResponseEntity<?> getAll(@RequestHeader("Authorization") String token) {
@@ -32,5 +33,10 @@ public class ExperienceController {
   public ResponseEntity<?> delete(@RequestHeader("Authorization") String token, @PathVariable Long id) {
     experienceService.delete(token, id);
     return ResponseEntity.noContent().build();
+  }
+
+  @PutMapping("/bulk")
+  public ResponseEntity<?> bulkSave(@RequestHeader("Authorization") String token, @RequestBody List<Experience> experiences) {
+    return ResponseEntity.ok(experienceService.saveAll(token, experiences));
   }
 }

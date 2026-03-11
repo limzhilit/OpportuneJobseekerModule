@@ -21,7 +21,6 @@ public class Experience {
   @OneToMany(cascade = CascadeType.ALL)
   private List<Position> positions;
 
-  @ManyToOne
-  @JoinColumn(name = "jobseeker_id")
-  private Jobseeker jobseeker;
+  @Column(name = "user_id", nullable = false)
+  private Long userId;  
 }
